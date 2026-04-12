@@ -19,9 +19,17 @@ export default function MonitoringPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-blue-dark">System Monitoring</h1>
-        <p className="text-muted">Real-time health pulse of the Laborgro infrastructure.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-dark">System Monitoring</h1>
+          <p className="text-muted">Real-time health pulse of the Laborgro infrastructure.</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-xl text-sm font-bold text-blue hover:bg-blue-pale transition-all shadow-sm">
+            <Activity className="w-4 h-4 text-green animate-pulse" />
+            Refresh Status
+          </button>
+        </div>
       </div>
 
       {/* Service Health Grid */}

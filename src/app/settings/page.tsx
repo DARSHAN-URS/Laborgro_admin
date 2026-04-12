@@ -18,9 +18,17 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-blue-dark">Platform Settings</h1>
-        <p className="text-muted">Configure global platform behaviour and policies.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-dark">Platform Settings</h1>
+          <p className="text-muted">Configure global platform behaviour and policies.</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-xl text-sm font-bold text-blue hover:bg-blue-pale transition-all shadow-sm">
+            <Globe className="w-4 h-4" />
+            Preview Site
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-8">

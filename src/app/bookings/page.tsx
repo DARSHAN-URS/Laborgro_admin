@@ -16,7 +16,7 @@ export default function BookingsPage() {
   const columns = [
     { header: 'Booking ID', accessor: 'id' },
     { header: 'Employer',   accessor: 'employer',  render: (v: string) => <span className="font-semibold text-blue-dark">{v}</span> },
-    { header: 'Worker',     accessor: 'worker' },
+    { header: 'Worker',     accessor: 'worker',    render: (v: string) => <span className="font-semibold text-blue-dark">{v}</span> },
     { header: 'Service',    accessor: 'service' },
     { header: 'Amount',     accessor: 'amount',    render: (v: string) => <span className="font-bold text-blue">{v}</span> },
     { header: 'Date',       accessor: 'date' },

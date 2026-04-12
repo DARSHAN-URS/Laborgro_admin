@@ -37,9 +37,17 @@ const performanceData = [
 export default function AnalyticsPage() {
   return (
     <div className="space-y-8 pb-12">
-      <div>
-        <h1 className="text-2xl font-bold text-blue-dark">Analytics & Insights</h1>
-        <p className="text-muted">Deep dive into platform growth and performance metrics.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-dark">Analytics & Insights</h1>
+          <p className="text-muted">Deep dive into platform growth and performance metrics.</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-xl text-sm font-bold text-blue hover:bg-blue-pale transition-all shadow-sm">
+            <TrendingUp className="w-4 h-4" />
+            Export Report
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

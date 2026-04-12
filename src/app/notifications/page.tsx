@@ -24,9 +24,16 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-blue-dark">Notifications</h1>
-        <p className="text-muted">Broadcast push notifications to users, workers, or employers.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-dark">Notifications</h1>
+          <p className="text-muted">Broadcast push notifications to users, workers, or employers.</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all shadow-sm">
+            Clear History
+          </button>
+        </div>
       </div>
 
       {/* Compose */}

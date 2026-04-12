@@ -43,7 +43,7 @@ export default function DispatchPage() {
           { header: 'Booking',  accessor: 'id' },
           { header: 'Worker',   accessor: 'worker',   render: (v: string) => <span className="font-semibold text-blue-dark">{v}</span> },
           { header: 'Service',  accessor: 'service' },
-          { header: 'Employer', accessor: 'employer' },
+          { header: 'Employer', accessor: 'employer', render: (v: string) => <span className="font-semibold text-blue-dark">{v}</span> },
           { header: 'Location', accessor: 'location', render: (v: string) => (
             <span className="flex items-center gap-1.5 text-muted"><MapPin className="w-3.5 h-3.5 text-blue shrink-0" />{v}</span>
           )},
