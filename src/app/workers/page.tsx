@@ -53,7 +53,7 @@ export default function WorkersPage() {
           <button className="p-2 bg-white border border-border rounded-xl text-muted hover:bg-blue-pale transition-all"><Filter className="w-5 h-5" /></button>
         </div>
       </div>
-      <DataTable columns={columns} data={workers || []} isLoading={isLoading} />
+      <DataTable columns={columns} data={workers?.data || []} isLoading={isLoading} />
     </div>
   );
 }

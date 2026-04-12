@@ -50,7 +50,7 @@ export default function UsersPage() {
           <button className="p-2 bg-white border border-border rounded-xl text-muted hover:bg-blue-pale transition-all"><Filter className="w-5 h-5" /></button>
         </div>
       </div>
-      <DataTable columns={columns} data={users || []} isLoading={isLoading} />
+      <DataTable columns={columns} data={users?.data || []} isLoading={isLoading} />
     </div>
   );
 }
