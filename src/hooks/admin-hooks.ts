@@ -107,12 +107,28 @@ export const useReassignBooking = () => {
   });
 };
 
-// ── Disputes (stub — backend endpoint TBD) ────────────────────────────────────
-export const useDisputes = (params?: any) =>
+// ── Disputes ──────────────────────────────────────────────────────────────────
+export const useDisputes = (params?: { skip?: number; limit?: number; search?: string }) =>
   useQuery({
     queryKey: ['admin-disputes', params],
     queryFn:  () => adminApi.getDisputes(params),
   });
+
+export const useResolveDispute = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.resolveDispute(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-disputes'] }),
+  });
+};
+
+export const useEscalateDispute = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.escalateDispute(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-disputes'] }),
+  });
+};
 
 // ── Analytics (stub) ──────────────────────────────────────────────────────────
 export const useAnalytics = (params?: any) =>
@@ -128,3 +144,51 @@ export const useHealth = () =>
     queryFn:  adminApi.getHealth,
     refetchInterval: 30_000,
   });
+
+// ── Dispatch ──────────────────────────────────────────────────────────────────
+export const useDispatch = () =>
+  useQuery({
+    queryKey: ['admin-dispatch'],
+    queryFn: adminApi.getDispatch,
+    refetchInterval: 15_000, // Auto-refresh every 15 seconds
+  });
+
+export const useAssignWorker = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bookingId, workerId }: { bookingId: string; workerId: string }) => 
+      adminApi.assignWorker(bookingId, workerId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-dispatch'] }),
+  });
+};
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+export const useNotifications = () =>
+  useQuery({
+    queryKey: ['admin-notifications'],
+    queryFn: adminApi.getNotifications,
+  });
+
+export const useBroadcastNotification = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title: string; message: string; target: string }) => 
+      adminApi.broadcastNotification(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-notifications'] }),
+  });
+};
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+export const useSettings = () =>
+  useQuery({
+    queryKey: ['admin-settings'],
+    queryFn: adminApi.getSettings,
+  });
+
+export const useUpdateSettings = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (settings: Record<string, string>) => adminApi.updateSettings(settings),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-settings'] }),
+  });
+};

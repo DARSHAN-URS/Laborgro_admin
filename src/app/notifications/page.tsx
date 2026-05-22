@@ -3,23 +3,30 @@
 import React, { useState } from 'react';
 import { Send, Users, User, Bell } from 'lucide-react';
 
-const sentNotifications: any[] = [];
+import { useNotifications, useBroadcastNotification } from '@/hooks/admin-hooks';
 
 export default function NotificationsPage() {
+  const { data: sentNotifications = [], refetch } = useNotifications();
+  const broadcast = useBroadcastNotification();
+  
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [target, setTarget] = useState('all');
-  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   const handleSend = async () => {
     if (!title || !message) return;
-    setSending(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setSending(false);
-    setSent(true);
-    setTitle(''); setMessage(''); setTarget('all');
-    setTimeout(() => setSent(false), 3000);
+    
+    broadcast.mutate(
+      { title, message, target },
+      {
+        onSuccess: () => {
+          setSent(true);
+          setTitle(''); setMessage(''); setTarget('all');
+          setTimeout(() => setSent(false), 3000);
+        }
+      }
+    );
   };
 
   return (
@@ -62,9 +69,9 @@ export default function NotificationsPage() {
         <textarea value={message} onChange={e => setMessage(e.target.value)} rows={3} placeholder="Write your message here..."
           className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all resize-none" />
 
-        <button onClick={handleSend} disabled={sending || !title || !message}
+        <button onClick={handleSend} disabled={broadcast.isPending || !title || !message}
           className="flex items-center gap-2 bg-blue text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-dark transition-all disabled:opacity-50 shadow-sm">
-          {sending ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending...</> : <><Send className="w-4 h-4" />Send Notification</>}
+          {broadcast.isPending ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending...</> : <><Send className="w-4 h-4" />Send Notification</>}
         </button>
         {sent && <p className="text-green text-sm font-semibold">✓ Notification sent successfully!</p>}
       </div>
@@ -75,7 +82,7 @@ export default function NotificationsPage() {
           <h2 className="font-bold text-blue-dark">Sent History</h2>
         </div>
         <div className="divide-y divide-border">
-          {sentNotifications.map((n) => (
+          {sentNotifications.map((n: any) => (
             <div key={n.id} className="flex items-start gap-4 px-6 py-4 hover:bg-blue-pale/20 transition-colors">
               <div className="w-9 h-9 rounded-xl bg-blue-pale flex items-center justify-center shrink-0">
                 <Bell className="w-4 h-4 text-blue" />
@@ -90,6 +97,9 @@ export default function NotificationsPage() {
               </div>
             </div>
           ))}
+          {sentNotifications.length === 0 && (
+            <div className="p-6 text-center text-muted">No notifications sent yet.</div>
+          )}
         </div>
       </div>
     </div>

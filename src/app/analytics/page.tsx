@@ -18,23 +18,32 @@ import ChartCard from '@/components/admin/ChartCard';
 import StatCard from '@/components/admin/StatCard';
 import { DollarSign, TrendingUp, XCircle, Award } from 'lucide-react';
 
-const revenueData = [
-  { month: 'Jan', revenue: 12000 },
-  { month: 'Feb', revenue: 15000 },
-  { month: 'Mar', revenue: 18000 },
-  { month: 'Apr', revenue: 16500 },
-  { month: 'May', revenue: 21000 },
-  { month: 'Jun', revenue: 25000 },
+import { useAnalytics } from '@/hooks/admin-hooks';
+
+const defaultRevenueData = [
+  { month: 'Jan', revenue: 0 }
 ];
 
-const performanceData = [
-  { name: 'Cleaning', efficiency: 95, satisfaction: 98 },
-  { name: 'Electrical', efficiency: 88, satisfaction: 94 },
-  { name: 'Plumbing', efficiency: 92, satisfaction: 90 },
-  { name: 'Carpentry', efficiency: 85, satisfaction: 95 },
+const defaultPerformanceData = [
+  { name: 'Loading...', efficiency: 0, satisfaction: 0 }
 ];
 
 export default function AnalyticsPage() {
+  const { data, isLoading } = useAnalytics();
+  
+  const revenueData = data?.revenueData || defaultRevenueData;
+  const performanceData = data?.performanceData || defaultPerformanceData;
+  const stats = data?.stats || {
+    daily_bookings: { value: '...', trend: 0, is_up: true },
+    monthly_revenue: { value: '...', trend: 0, is_up: true },
+    cancellation_rate: { value: '...', trend: 0, is_up: false },
+    avg_worker_rating: { value: '...', trend: 0, is_up: true }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-muted">Loading analytics...</div>;
+  }
+
   return (
     <div className="space-y-8 pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -51,10 +60,10 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Daily Bookings" value="142" icon={TrendingUp} trend={{ value: 8, isUp: true }} />
-        <StatCard title="Monthly Revenue" value="$42,500" icon={DollarSign} trend={{ value: 12, isUp: true }} />
-        <StatCard title="Cancellation Rate" value="2.4%" icon={XCircle} trend={{ value: 0.5, isUp: false }} />
-        <StatCard title="Avg. Worker Rating" value="4.7" icon={Award} />
+        <StatCard title="Daily Bookings" value={String(stats.daily_bookings.value)} icon={TrendingUp} trend={{ value: stats.daily_bookings.trend, isUp: stats.daily_bookings.is_up }} />
+        <StatCard title="Monthly Revenue" value={String(stats.monthly_revenue.value)} icon={DollarSign} trend={{ value: stats.monthly_revenue.trend, isUp: stats.monthly_revenue.is_up }} />
+        <StatCard title="Cancellation Rate" value={String(stats.cancellation_rate.value)} icon={XCircle} trend={{ value: stats.cancellation_rate.trend, isUp: stats.cancellation_rate.is_up }} />
+        <StatCard title="Avg. Worker Rating" value={String(stats.avg_worker_rating.value)} icon={Award} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

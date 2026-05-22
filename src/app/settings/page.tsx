@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Save, Globe, Shield, CreditCard, Bell } from 'lucide-react';
 
+import { useSettings, useUpdateSettings } from '@/hooks/admin-hooks';
+
 const sections = [
   { id: 'general',   label: 'General',        icon: Globe },
   { id: 'security',  label: 'Security',        icon: Shield },
@@ -11,10 +13,40 @@ const sections = [
 ];
 
 export default function SettingsPage() {
+  const { data: initialSettings, isLoading } = useSettings();
+  const updateSettings = useUpdateSettings();
+  
   const [active, setActive] = useState('general');
   const [saved, setSaved] = useState(false);
+  const [localSettings, setLocalSettings] = useState<Record<string, string>>({});
 
-  const save = () => { setSaved(true); setTimeout(() => setSaved(false), 2500); };
+  // Initialize local state when data loads
+  React.useEffect(() => {
+    if (initialSettings) {
+      setLocalSettings(initialSettings);
+    }
+  }, [initialSettings]);
+
+  const handleChange = (key: string, value: string) => {
+    setLocalSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleToggle = (key: string) => {
+    setLocalSettings(prev => ({ ...prev, [key]: prev[key] === 'true' ? 'false' : 'true' }));
+  };
+
+  const save = () => {
+    updateSettings.mutate(localSettings, {
+      onSuccess: () => {
+        setSaved(true); 
+        setTimeout(() => setSaved(false), 2500);
+      }
+    });
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-muted">Loading settings...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -49,14 +81,14 @@ export default function SettingsPage() {
             <>
               <h2 className="text-lg font-bold text-blue-dark mb-2">General Settings</h2>
               {[
-                { label: 'Platform Name',    val: '' },
-                { label: 'Support Email',    val: '' },
-                { label: 'Default Language', val: '' },
-                { label: 'Default City',     val: '' },
+                { label: 'Platform Name',    key: 'platform_name' },
+                { label: 'Support Email',    key: 'support_email' },
+                { label: 'Default Language', key: 'default_language' },
+                { label: 'Default City',     key: 'default_city' },
               ].map((f) => (
                 <div key={f.label}>
                   <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">{f.label}</label>
-                  <input defaultValue={f.val} className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all" />
+                  <input value={localSettings[f.key] || ''} onChange={e => handleChange(f.key, e.target.value)} className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all" />
                 </div>
               ))}
             </>
@@ -65,13 +97,13 @@ export default function SettingsPage() {
             <>
               <h2 className="text-lg font-bold text-blue-dark mb-2">Security Settings</h2>
               {[
-                { label: 'Session Timeout (minutes)', val: '' },
-                { label: 'Max Login Attempts',        val: '' },
-                { label: 'Admin 2FA',                 val: '' },
+                { label: 'Session Timeout (minutes)', key: 'session_timeout' },
+                { label: 'Max Login Attempts',        key: 'max_login_attempts' },
+                { label: 'Admin 2FA',                 key: 'admin_2fa' },
               ].map((f) => (
                 <div key={f.label}>
                   <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">{f.label}</label>
-                  <input defaultValue={f.val} className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all" />
+                  <input value={localSettings[f.key] || ''} onChange={e => handleChange(f.key, e.target.value)} className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all" />
                 </div>
               ))}
             </>
@@ -80,14 +112,14 @@ export default function SettingsPage() {
             <>
               <h2 className="text-lg font-bold text-blue-dark mb-2">Payment Settings</h2>
               {[
-                { label: 'Platform Fee (%)',      val: '' },
-                { label: 'Min. Payout (₹)',       val: '' },
-                { label: 'Payout Schedule',       val: '' },
-                { label: 'Payment Gateway',       val: '' },
+                { label: 'Platform Fee (%)',      key: 'platform_fee' },
+                { label: 'Min. Payout (₹)',       key: 'min_payout' },
+                { label: 'Payout Schedule',       key: 'payout_schedule' },
+                { label: 'Payment Gateway',       key: 'payment_gateway' },
               ].map((f) => (
                 <div key={f.label}>
                   <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">{f.label}</label>
-                  <input defaultValue={f.val} className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all" />
+                  <input value={localSettings[f.key] || ''} onChange={e => handleChange(f.key, e.target.value)} className="w-full px-4 py-3 rounded-xl border border-border focus:border-blue/40 focus:ring-2 focus:ring-blue/10 outline-none text-sm transition-all" />
                 </div>
               ))}
             </>
@@ -96,25 +128,28 @@ export default function SettingsPage() {
             <>
               <h2 className="text-lg font-bold text-blue-dark mb-2">Notification Settings</h2>
               {[
-                { label: 'New Booking Alerts',   on: false },
-                { label: 'Dispute Alerts',       on: false },
-                { label: 'Worker KYC Alerts',    on: false },
-                { label: 'System Error Alerts',  on: false },
-                { label: 'Weekly Reports',       on: false },
-              ].map((f) => (
-                <div key={f.label} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                  <span className="text-sm font-semibold text-blue-dark">{f.label}</span>
-                  <button className={`w-12 h-6 rounded-full transition-all relative ${f.on ? 'bg-blue' : 'bg-border'}`}>
-                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${f.on ? 'left-7' : 'left-1'}`} />
-                  </button>
-                </div>
-              ))}
+                { label: 'New Booking Alerts',   key: 'notify_new_booking' },
+                { label: 'Dispute Alerts',       key: 'notify_dispute' },
+                { label: 'Worker KYC Alerts',    key: 'notify_kyc' },
+                { label: 'System Error Alerts',  key: 'notify_error' },
+                { label: 'Weekly Reports',       key: 'notify_weekly' },
+              ].map((f) => {
+                const isOn = localSettings[f.key] === 'true';
+                return (
+                  <div key={f.label} className="flex items-center justify-between py-3 border-b border-border last:border-0">
+                    <span className="text-sm font-semibold text-blue-dark">{f.label}</span>
+                    <button onClick={() => handleToggle(f.key)} className={`w-12 h-6 rounded-full transition-all relative ${isOn ? 'bg-blue' : 'bg-border'}`}>
+                      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${isOn ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+                );
+              })}
             </>
           )}
 
-          <button onClick={save} className="flex items-center gap-2 bg-blue text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-dark transition-all shadow-sm mt-4">
+          <button onClick={save} disabled={updateSettings.isPending} className="flex items-center gap-2 bg-blue text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-dark transition-all shadow-sm mt-4 disabled:opacity-50">
             <Save className="w-4 h-4" />
-            {saved ? '✓ Saved!' : 'Save Changes'}
+            {saved ? '✓ Saved!' : (updateSettings.isPending ? 'Saving...' : 'Save Changes')}
           </button>
         </div>
       </div>

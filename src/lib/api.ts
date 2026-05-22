@@ -106,10 +106,39 @@ const cancelBooking = (bookingId: string, reason: string = 'Admin cancellation')
 const forceCompleteBooking = (bookingId: string) =>
   api.post('/admin/bookings/force-complete', null, { params: { booking_id: bookingId } }).then(res => res.data);
 
+// ── Disputes ──────────────────────────────────────────────────────────────────
+const getDisputes = (params?: { skip?: number; limit?: number; search?: string }) =>
+  api.get('/admin/disputes', { params }).then(res => res.data);
+
+const resolveDispute = (disputeId: string) =>
+  api.post(`/admin/disputes/${disputeId}/resolve`).then(res => res.data);
+
+const escalateDispute = (disputeId: string) =>
+  api.post(`/admin/disputes/${disputeId}/escalate`).then(res => res.data);
+
 // ── Old admin router (Supabase-direct) ────────────────────────────────────────
 // GET  /api/v1/admin/dashboard   (legacy)
 // POST /api/v1/admin/workers/{id}/approve (legacy)
 const getHealth = () => api.get('/health', { baseURL: BASE }).then(res => res.data);
+
+// ── Analytics ─────────────────────────────────────────────────────────────────
+const getAnalytics = (params?: any) =>
+  api.get('/admin/analytics', { params }).then(res => res.data);
+
+// ── Dispatch ──────────────────────────────────────────────────────────────────
+const getDispatch = () => api.get('/admin/dispatch/active').then(res => res.data);
+const assignWorker = (bookingId: string, workerId: string) => 
+  api.post('/admin/dispatch/assign', null, { params: { booking_id: bookingId, worker_id: workerId } }).then(res => res.data);
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+const getNotifications = () => api.get('/admin/notifications').then(res => res.data);
+const broadcastNotification = (payload: { title: string; message: string; target: string }) =>
+  api.post('/admin/notifications/broadcast', payload).then(res => res.data);
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+const getSettings = () => api.get('/admin/settings').then(res => res.data);
+const updateSettings = (settings: Record<string, string>) =>
+  api.put('/admin/settings', { settings }).then(res => res.data);
 
 // ── Unified export ───────────────────────────────────────────────────────────
 export const adminApi = {
@@ -127,9 +156,16 @@ export const adminApi = {
   cancelBooking,
   forceCompleteBooking,
   getHealth,
-  // stubs for unused hooks
-  getDisputes:  (params?: any) => Promise.resolve([]),
-  getAnalytics: (params?: any) => Promise.resolve(null),
+  getDisputes,
+  resolveDispute,
+  escalateDispute,
+  getAnalytics,
+  getDispatch,
+  assignWorker,
+  getNotifications,
+  broadcastNotification,
+  getSettings,
+  updateSettings,
 };
 
 export default api;

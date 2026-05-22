@@ -4,16 +4,14 @@ import React from 'react';
 import { UserPlus, CheckCircle, ArrowUpCircle, Search, Filter } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { useDisputes } from '@/hooks/admin-hooks';
+import { useDisputes, useResolveDispute, useEscalateDispute } from '@/hooks/admin-hooks';
 
 export default function DisputesPage() {
-  const { data: disputes, isLoading } = useDisputes();
-
-  const mockDisputes = [
-    { id: 'DIS-101', booking: 'BK-5231', reportedBy: 'Grace Hopper', status: 'Pending', priority: 'High', date: '2024-03-12' },
-    { id: 'DIS-102', booking: 'BK-4890', reportedBy: 'Worker: John Smith', status: 'Processing', priority: 'Medium', date: '2024-03-11' },
-    { id: 'DIS-103', booking: 'BK-9912', reportedBy: 'Bill Gates', status: 'Resolved', priority: 'Low', date: '2024-03-10' },
-  ];
+  const { data: disputesData, isLoading } = useDisputes();
+  const resolve = useResolveDispute();
+  const escalate = useEscalateDispute();
+  
+  const disputes = disputesData?.data || [];
 
   const columns = [
     { header: 'Dispute ID', accessor: 'id' },
@@ -40,12 +38,12 @@ export default function DisputesPage() {
               <UserPlus className="w-4 h-4" />
             </button>
           )}
-          {row.status !== 'Resolved' && (
+          {row.status !== 'RESOLVED' && row.status !== 'CLOSED' && (
              <>
-              <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Resolve">
+              <button onClick={() => resolve.mutate(id)} disabled={resolve.isPending} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Resolve">
                 <CheckCircle className="w-4 h-4" />
               </button>
-              <button className="p-2 text-orange hover:bg-orange-bg rounded-lg transition-colors" title="Escalate">
+              <button onClick={() => escalate.mutate(id)} disabled={escalate.isPending} className="p-2 text-orange hover:bg-orange-bg rounded-lg transition-colors" title="Escalate">
                 <ArrowUpCircle className="w-4 h-4" />
               </button>
              </>
@@ -81,27 +79,27 @@ export default function DisputesPage() {
       <div className="hidden lg:block">
         <DataTable 
           columns={columns} 
-          data={disputes || mockDisputes} 
+          data={disputes} 
           isLoading={isLoading} 
         />
       </div>
 
       {/* Mobile Card View */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
-        {(disputes || mockDisputes).map((dispute: any) => (
+        {disputes.map((dispute: any) => (
           <div key={dispute.id} className="bg-white p-5 rounded-2xl border border-border shadow-sm">
              <div className="flex justify-between items-start mb-3">
                <div>
-                  <span className="text-[10px] font-bold text-blue bg-blue-pale px-2.5 py-1 rounded-lg border border-blue-border uppercase tracking-wider">ID: {dispute.id}</span>
-                  <h3 className="font-bold text-blue-dark mt-3">Booking {dispute.booking}</h3>
+                  <span className="text-[10px] font-bold text-blue bg-blue-pale px-2.5 py-1 rounded-lg border border-blue-border uppercase tracking-wider">ID: {dispute.id.slice(0, 8)}</span>
+                  <h3 className="font-bold text-blue-dark mt-3">Booking {dispute.booking.slice(0, 8)}</h3>
                </div>
                <StatusBadge status={dispute.status} />
              </div>
              <p className="text-sm text-muted mb-1">Reported by: <span className="font-bold text-blue-dark">{dispute.reportedBy}</span></p>
              <p className="text-xs text-muted mb-6">Date: {dispute.date}</p>
              <div className="flex gap-2">
-                <button className="flex-1 py-2.5 bg-blue-pale text-blue rounded-xl text-xs font-bold border border-blue-border hover:bg-blue/10 transition-colors">Manage</button>
-                <button className="flex-1 py-2.5 bg-green-pale text-green rounded-xl text-xs font-bold border border-green-light hover:bg-green/10 transition-colors">Resolve</button>
+                <button onClick={() => escalate.mutate(dispute.id)} disabled={escalate.isPending || dispute.status === 'RESOLVED'} className="flex-1 py-2.5 bg-orange-bg text-orange rounded-xl text-xs font-bold border border-orange hover:bg-orange/10 transition-colors">Escalate</button>
+                <button onClick={() => resolve.mutate(dispute.id)} disabled={resolve.isPending || dispute.status === 'RESOLVED'} className="flex-1 py-2.5 bg-green-pale text-green rounded-xl text-xs font-bold border border-green-light hover:bg-green/10 transition-colors">Resolve</button>
              </div>
           </div>
         ))}
