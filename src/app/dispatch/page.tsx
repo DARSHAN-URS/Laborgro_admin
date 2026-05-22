@@ -3,6 +3,7 @@
 import React from 'react';
 import { MapPin, Search, RefreshCw } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
+import StatusBadge from '@/components/admin/StatusBadge';
 import { useDispatch, useAssignWorker } from '@/hooks/admin-hooks';
 
 export default function DispatchPage() {
