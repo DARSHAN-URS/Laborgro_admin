@@ -79,7 +79,7 @@ export default function DisputesPage() {
       <div className="hidden lg:block">
         <DataTable 
           columns={columns} 
-          data={disputes} 
+          data={disputes?.data || []} 
           isLoading={isLoading} 
         />
       </div>
