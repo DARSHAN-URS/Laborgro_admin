@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminApi } from '@/lib/api';
+import { adminApi, CreateWorkerPayload } from '@/lib/api';
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 // Response shape: { metrics: { total_bookings, active_workers, pending_verifications },
@@ -47,6 +47,15 @@ export const useWorkers = (params?: { skip?: number; limit?: number; search?: st
     queryKey: ['admin-workers', params],
     queryFn:  () => adminApi.getWorkers(params),
   });
+
+export const useCreateWorker = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateWorkerPayload) => adminApi.createWorker(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-workers'] }),
+  });
+};
+
 
 export const useApproveWorker = () => {
   const qc = useQueryClient();

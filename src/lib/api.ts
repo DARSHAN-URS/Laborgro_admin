@@ -77,8 +77,24 @@ const resetUserPassword = (userId: string) =>
 // POST /api/v1/admin/workers/approve?worker_id=
 // POST /api/v1/admin/workers/reject?worker_id=&reason=
 // POST /api/v1/admin/workers/suspend?worker_id=&reason=
+export interface CreateWorkerPayload {
+  full_name: string;
+  phone: string;
+  email?: string;
+  city?: string;
+  hourly_rate?: number;
+  experience_years?: number;
+  skills?: string[];
+  bio?: string;
+  is_verified?: boolean;
+  is_available?: boolean;
+}
+
 const getWorkers = (params?: { skip?: number; limit?: number; search?: string }) =>
   api.get('/admin/workers', { params }).then(res => res.data);
+
+const createWorker = (data: CreateWorkerPayload) =>
+  api.post('/admin/workers', data).then(res => res.data);
 
 const approveWorker = (workerId: string) =>
   api.post('/admin/workers/approve', null, { params: { worker_id: workerId } }).then(res => res.data);
@@ -88,6 +104,7 @@ const rejectWorker = (workerId: string, reason: string = 'Admin rejection') =>
 
 const suspendWorker = (workerId: string, reason: string = 'Admin action') =>
   api.post('/admin/workers/suspend', null, { params: { worker_id: workerId, reason } }).then(res => res.data);
+
 
 // ── Bookings ──────────────────────────────────────────────────────────────────
 // GET  /api/v1/admin/bookings?skip=0&limit=20&search=
@@ -148,6 +165,7 @@ export const adminApi = {
   reactivateUser,
   resetUserPassword,
   getWorkers,
+  createWorker,
   approveWorker,
   rejectWorker,
   suspendWorker,

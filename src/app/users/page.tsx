@@ -9,7 +9,7 @@ import { useUsers, useSuspendUser, useReactivateUser, useResetPassword } from '@
 
 
 export default function UsersPage() {
-  const { data: users, isLoading } = useUsers();
+  const { data: users, isLoading, error } = useUsers();
   const suspend    = useSuspendUser();
   const reactivate = useReactivateUser();
   const resetPwd   = useResetPassword();
@@ -50,6 +50,12 @@ export default function UsersPage() {
           <button className="p-2 bg-white border border-border rounded-xl text-muted hover:bg-blue-pale transition-all"><Filter className="w-5 h-5" /></button>
         </div>
       </div>
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+          <span className="font-bold">API Error: </span>
+          {(error as any)?.response?.data?.detail || (error as any)?.message || 'Failed to fetch users. Check backend connection.'}
+        </div>
+      )}
       <DataTable columns={columns} data={users?.data || []} isLoading={isLoading} />
     </div>
   );
