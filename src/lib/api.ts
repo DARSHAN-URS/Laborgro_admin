@@ -18,11 +18,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Redirect to /login on 401
+// Redirect to /login on 401 or 403
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401 && typeof window !== 'undefined') {
+    const status = err.response?.status;
+    if ((status === 401 || status === 403) && typeof window !== 'undefined') {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
       window.location.href = '/login';
@@ -30,6 +31,7 @@ api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export const authApi = {
